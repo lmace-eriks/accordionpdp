@@ -6,7 +6,7 @@ import styles from "./styles.css";
 
 // Types
 import { ProductDataCardProps, DataPoints, PointObject, MoreInfoObject } from "./typesdata";
-import { removeSpaces } from "./PDPAccordion";
+import { removeSpaces } from "./AccordionPDP";
 
 const addSpaces = (value: string) => value.split("-").join(" - ");
 
