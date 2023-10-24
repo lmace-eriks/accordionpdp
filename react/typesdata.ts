@@ -4,35 +4,37 @@ export interface ProductDataCardProps {
 }
 
 export interface DataPoints {
-  allStyle?: PointObject;
-  baseTech?: PointObject;
-  baseType?: PointObject;
-  bestUse?: PointObject;
-  material?: PointObject;
-  wheelSize?: PointObject;
-  cassetteGears?: PointObject;
-  chainrings?: PointObject;
-  handlebar?: PointObject;
-  core?: PointObject;
-  flex?: PointObject;
-  mounting?: PointObject;
-  profile?: PointObject;
-  riderLevel?: PointObject;
-  stance?: PointObject;
-  shape?: PointObject;
-  gender?: PointObject;
-  bindings?: PointObject;
-  geo?: PointObject;
-  tailType?: PointObject;
-  turnRadius?: PointObject;
-  waistWidth?: PointObject;
+  // Snowboard
+  ProductData_AllStyle_SB?: PointObject;
+  ProductData_WinBaseTech_SB?: PointObject;
+  ProductData_WinBaseType_SB?: PointObject;
+  ProductData_WinCore_SB?: PointObject;
+  ProductData_WinFlex_SB?: PointObject;
+  ProductData_Gender_SB?: PointObject;
+  ProductData_WinMounting_SB?: PointObject;
+  ProductData_WinProfile_SB?: PointObject;
+  ProductData_WinRiderLvl_SB?: PointObject;
+  ProductData_WinStance_SB?: PointObject;
+  ProductData_WinShape_SB?: PointObject;
+
+  // Ski
+  ProductData_AllStyle_SK?: PointObject;
+  ProductData_WinBindings_SK?: PointObject;
+  ProductData_WinCore_SK?: PointObject;
+  ProductData_WinFlex_SK?: PointObject;
+  ProductData_WinGeo_SK?: PointObject;
+  ProductData_WinProfile_SK?: PointObject;
+  ProductData_WinRiderLvl_SK?: PointObject;
+  ProductData_WinTailType_SK?: PointObject;
+  ProductData_WinTurnRadius_SK?: PointObject;
+  ProductData_WinWaistWidth_SK?: PointObject;
+  ProductData_Gender_SK?: PointObject;
 }
 
 export interface PointObject {
-  attribute?: string;
   label: string;
   info?: MoreInfoObject;
-  value?: any; // Loaded dynamically from VTEX.
+  value?: string; // Loaded from VTEX server.
 }
 
 export interface MoreInfoObject {
@@ -42,88 +44,77 @@ export interface MoreInfoObject {
 }
 
 export const snowboardDataPoints: DataPoints = {
-  allStyle: {
-    attribute: "ProductData_AllStyle_SB",
+  ProductData_AllStyle_SB: {
     label: "All Style",
     info: {
-      text: "All Style is the ipsum lorum dolor sit amet.",
+      text: "All Style is so cool ya gotta try it.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  baseTech: {
-    attribute: "ProductData_WinBaseTech_SB",
+  ProductData_WinBaseTech_SB: {
     label: "Base Tech",
     info: {
       text: "Base Tech is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  baseType: {
-    attribute: "ProductData_WinBaseType_SB",
+  ProductData_WinBaseType_SB: {
     label: "Base Type",
     info: {
       text: "Base Type is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  core: {
-    attribute: "ProductData_WinCore_SB",
+  ProductData_WinCore_SB: {
     label: "Core",
     info: {
       text: "Core is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  flex: {
-    attribute: "ProductData_WinFlex_SB",
+  ProductData_WinFlex_SB: {
     label: "Flex",
     info: {
       text: "Flex is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  gender: {
-    attribute: "ProductData_Gender_SB",
+  ProductData_Gender_SB: {
     label: "Gender",
     info: {
       text: "Gender is a social construct.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  mounting: {
-    attribute: "ProductData_WinMounting_SB",
+  ProductData_WinMounting_SB: {
     label: "Mounting",
     info: {
       text: "Mounting is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  profile: {
-    attribute: "ProductData_WinProfile_SB",
+  ProductData_WinProfile_SB: {
     label: "Profile",
     info: {
       text: "Profile is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  riderLevel: {
-    attribute: "ProductData_WinRiderLvl_SB",
+  ProductData_WinRiderLvl_SB: {
     label: "Rider Level",
     info: {
       text: "Rider Level is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  stance: {
-    attribute: "ProductData_WinStance_SB",
+  ProductData_WinStance_SB: {
     label: "Stance",
     info: {
       text: "Stance is the ipsum lorum dolor sit amet.",
       image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
     },
   },
-  shape: {
-    attribute: "ProductData_WinShape_SB",
+  ProductData_WinShape_SB: {
     label: "Shape",
     info: {
       text: "Shape is the ipsum lorum dolor sit amet.",
@@ -133,78 +124,67 @@ export const snowboardDataPoints: DataPoints = {
 };
 
 export const skiDataPoints: DataPoints = {
-  allStyle: {
-    attribute: "ProductData_AllStyle_SK",
+  ProductData_AllStyle_SK: {
     label: "All Style",
     info: {
       text: "This is the info for a ski All Style",
     },
   },
-  bindings: {
-    attribute: "ProductData_WinBindings_SK",
+  ProductData_WinBindings_SK: {
     label: "Bindings",
     info: {
       text: "This is the info for a ski All Style",
     },
   },
-  core: {
-    attribute: "ProductData_WinCore_SK",
+  ProductData_WinCore_SK: {
     label: "Core",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  flex: {
-    attribute: "ProductData_WinFlex_SK",
+  ProductData_WinFlex_SK: {
     label: "Flex",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  gender: {
-    attribute: "ProductData_Gender_SK",
+  ProductData_Gender_SK: {
     label: "Gender",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  geo: {
-    attribute: "ProductData_WinGeo_SK",
+  ProductData_WinGeo_SK: {
     label: "Geometry",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  profile: {
-    attribute: "ProductData_WinProfile_SK",
+  ProductData_WinProfile_SK: {
     label: "Profile",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  riderLevel: {
-    attribute: "ProductData_WinRiderLvl_SK",
+  ProductData_WinRiderLvl_SK: {
     label: "Rider Level",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  tailType: {
-    attribute: "ProductData_WinTailType_SK",
+  ProductData_WinTailType_SK: {
     label: "Tail Type",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  turnRadius: {
-    attribute: "ProductData_WinTurnRadius_SK",
+  ProductData_WinTurnRadius_SK: {
     label: "Turn Radius",
     info: {
       text: "This is the info for a ski Core",
     },
   },
-  waistWidth: {
-    attribute: "ProductData_WinWaistWidth_SK",
+  ProductData_WinWaistWidth_SK: {
     label: "Waist Width",
     info: {
       text: "This is the info for a ski Core",

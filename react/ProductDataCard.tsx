@@ -21,17 +21,14 @@ const flexRating = (value: string) => {
   }
 }
 
-const ProductDataCard = ({ validSpecs }: ProductDataCardProps) => {
+const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => {
   const modal = useRef<HTMLDialogElement>(null);
   const [moreInfo, setMoreInfo] = useState<MoreInfoObject>({});
 
-  const openModalClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    const target = e.target as HTMLButtonElement;
-    const spec: keyof DataPoints = target.dataset.spec as keyof DataPoints;
-
-    const title = validSpecs[spec]?.label;
-    const text = validSpecs[spec]?.info?.text;
-    const image = validSpecs[spec]?.info?.image;
+  const openModalClick = (index: number) => {
+    const title = validSpecs[index]?.label;
+    const text = validSpecs[index]?.info?.text;
+    const image = validSpecs[index]?.info?.image;
     setMoreInfo({ title, text, image });
     modal.current?.showModal();
   }
@@ -42,38 +39,38 @@ const ProductDataCard = ({ validSpecs }: ProductDataCardProps) => {
   }
 
   // Value Snowboard Element?
-  const ValueElement = ({ spec, label }: { spec: keyof DataPoints, label: string }) => (
+  const ValueElement = ({ index, label }: { index: number, label: string }) => (
     <div className={styles.value}>
       {label === "All Style" && // Best Use ?
         <div className={styles.valueText}>
           <div className={styles.valueText}>
-            {validSpecs[spec]?.value}
+            {validSpecs[index]?.value}
           </div>
-          <img src={`/arquivos/pdc-sb-${removeSpaces(validSpecs[spec]?.value)}.png`} alt="" className={styles.valueImage} width={505} height={80} />
+          <img src={`/arquivos/pdc-sb-${removeSpaces(validSpecs[index].value!)}.png`} alt="" className={styles.valueImage} width={505} height={80} />
         </div>
       }
       {label === "Flex" &&
         <div className={styles.valueText}>
           <div className={styles.valueText}>
-            {`${validSpecs[spec]?.value} out of 10 - ${flexRating(validSpecs[spec]?.value)}`}
+            {`${validSpecs[index]?.value} out of 10 - ${flexRating(validSpecs[index].value!)}`}
           </div>
-          <img src={`/arquivos/pdc-flex-${validSpecs[spec]?.value}.png`} alt="" className={styles.valueImage} width={400} height={40} />
+          <img src={`/arquivos/pdc-flex-${validSpecs[index]?.value}.png`} alt="" className={styles.valueImage} width={400} height={40} />
         </div>
       }
       {label === "Profile" &&
         <div className={styles.valueText}>
           <div className={styles.valueText}>
-            {validSpecs[spec]?.value}
+            {validSpecs[index]?.value}
           </div>
-          <img src={`/arquivos/pdc-sb-profile-${validSpecs[spec]?.value}.png`} alt="" className={styles.valueImage} width={400} height={80} />
+          <img src={`/arquivos/pdc-sb-profile-${validSpecs[index].value}.png`} alt="" className={styles.valueImage} width={400} height={80} />
         </div>
       }
       {label === "Rider Level" &&
         <div className={styles.valueStack}>
           <div className={styles.valueText}>
-            {addSpaces(validSpecs[spec]?.value)}
+            {addSpaces(validSpecs[index].value!)}
           </div>
-          <img src={`/arquivos/pdc-${(validSpecs[spec]?.value).toLowerCase()}.png`} alt="" className={styles.valueImage} width={450} height={80} />
+          <img src={`/arquivos/pdc-${(validSpecs[index].value!).toLowerCase()}.png`} alt="" className={styles.valueImage} width={450} height={80} />
         </div>
       }
       {/* String Only Outputs */
@@ -89,7 +86,7 @@ const ProductDataCard = ({ validSpecs }: ProductDataCardProps) => {
           label === "Tail Type" ||
           label === "Turn Radius" ||
           label === "Waist Width") &&
-        <div className={styles.valueText}>{validSpecs[spec]?.value}</div>
+        <div className={styles.valueText}>{validSpecs[index].value}</div>
       }
     </div>
   )
@@ -98,9 +95,9 @@ const ProductDataCard = ({ validSpecs }: ProductDataCardProps) => {
     <div className={styles.pdcContainer}>
       {Object.keys(validSpecs).map((spec: string, index: number) => (
         <div key={`${spec}-${index}`} className={styles.detailsRow}>
-          <div className={styles.spec}>{validSpecs[spec as keyof DataPoints]?.label}:</div>
-          <ValueElement spec={spec as keyof DataPoints} label={validSpecs[spec as keyof DataPoints]?.label!} />
-          <button onClick={openModalClick} data-spec={spec} aria-label={`Learn more about ${spec}`} className={styles.learnMore}>
+          <div className={styles.spec}>{validSpecs[index].label}:</div>
+          <ValueElement index={index} label={validSpecs[index].label} />
+          <button onClick={() => openModalClick(index)} data-spec={spec} aria-label={`Learn more about ${spec}`} className={styles.learnMore}>
             Learn More <span className={styles.questionMark}>?</span>
           </button>
         </div>

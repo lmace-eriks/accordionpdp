@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState, ReactChildren } from "react";
 import { canUseDOM } from "vtex.render-runtime";
+// @ts-ignore
+import { useProduct } from 'vtex.product-context';
 
 // Styles
 import styles from "./styles.css";
@@ -24,28 +26,22 @@ import { categories } from "./typesdata";
 
 // Components
 import ProductDataCard from "./ProductDataCard";
-import { forEach } from "ramda";
 
-// Class of second tier breadcrumb. Inner Text contains "Bicycles", "Snowboards", ect.
-const categoryClass = "vtex-breadcrumb-1-x-arrow--2";
-
-const grabDOM: any = (selector: string) => canUseDOM ? document.querySelector(selector) : null;
 export const removeSpaces = (value: string) => value.split(" ").join("-").toLowerCase().replace("'", "");
-const maximumCheckReadyDOMCount = 3;
 
 const waitForDOM = (callbackFunction: any, ms: number = 1) => setTimeout(() => callbackFunction(), ms);
 
 const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children, sectionProps }) => {
+  const productContextValue = useProduct();
 
   // Refs
+  const productInfo = useRef<any>();
   const sections = useRef<Array<HTMLDivElement>>([]);
   const wrappers = useRef<Array<HTMLDivElement>>([]);
   const dataPointsControl = useRef<DataPoints>({});
-  const checkReadyDOMCount = useRef(0);
 
   // State
-  const [validSpecs, setValidSpecs] = useState<DataPoints>({});
-  const [showDataCard, setShowProductDataCard] = useState(false);
+  const [validSpecs, setValidSpecs] = useState<Array<PointObject>>([]);
   const [activeSection, setActiveSection] = useState(-1);
   const [activeHeight, setActiveHeight] = useState(0);
   const [loadedSections, setLoadedSections] = useState<Array<boolean>>(sectionProps.map(section => !section.lazyLoaded));
@@ -53,7 +49,6 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
   // Run on load
   useEffect(() => determineCategory(), []);
 
-  // Run on navigate
   useEffect(() => {
     if (!canUseDOM) return;
     window.addEventListener("message", handleMessage);
@@ -68,20 +63,26 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
 
   const determineCategory = () => {
     // Reset data.
-    setValidSpecs({});
+    setValidSpecs([]);
     dataPointsControl.current = {};
 
-    const productCategoryDOM = grabDOM(`.${categoryClass}`);
-    if (!productCategoryDOM) return;
+    productInfo.current = productContextValue.product;
+    if (!productInfo.current) return;
 
-    const productCategory = productCategoryDOM.innerText.toLowerCase();
+    const categoryTree: Array<any> = productInfo.current.categoryTree;
+    if (!categoryTree) return;
+
+    // Identifying category is position [1] in categoryTree.
+    const productCategory = categoryTree[1]?.name?.toLowerCase();
+
     let validCategory = false;
 
     for (const key in categories) {
       // Only searchForSpecs() if productCategory is in {categories}.
       if (productCategory === key) {
         dataPointsControl.current = categories[productCategory];
-        checkReadyDOM();
+        findSpecs();
+        // checkReadyDOM();
         validCategory = true;
         break;
       }
@@ -90,66 +91,38 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     if (!validCategory) activateSection(1); // Product Description.
   }
 
-  // Since we're using the DOM to populate data, we sometimes need to wait for it to update.
-  // This is more of a fallback than an absolutely necessary function. - LM
-  const checkReadyDOM = () => {
-    if (checkReadyDOMCount.current >= maximumCheckReadyDOMCount) {
-      activateSection(1); // Product Description.
-      return;
-    }
-
-    const tableElement = grabDOM(`.vtex-store-components-3-x-specificationsTableBody--product-data-card`);
-
-    if (tableElement) {
-      searchForSpecs();
-    } else {
-      checkReadyDOMCount.current = checkReadyDOMCount.current + 1;
-      waitForDOM(() => checkReadyDOM(), 200);
-    }
-  }
-
-  const searchForSpecs = () => {
+  const findSpecs = () => {
     const dataList = dataPointsControl.current;
-    const tempValidSpecs: DataPoints = new Object();
-    const dataKeys: Array<string> = Object.keys(dataList);
-    const dataAttributes: Array<string> = [];
+    const productProperties = productInfo.current.properties;
+    const tempValidSpecs: Array<PointObject> = [];
 
-    // Build [dataAttributes].
-    for (const key in dataList) {
-      const keyTypeFix: keyof DataPoints = key as keyof DataPoints;
-      const dataPoint = dataList[keyTypeFix]!;
-      const attribute = dataPoint.attribute!;
-      dataAttributes.push(attribute);
-    }
+    for (let propIndex = 0; propIndex < productProperties.length; propIndex++) {
+      const property = productProperties[propIndex].name;
+      const isDataCard = property.includes("ProductData_");
 
-    for (let index = 0; index < dataAttributes.length; index++) {
-      const attribute: string = dataAttributes[index];
+      // If property is a valid Product Data Card property, build state.
+      if (isDataCard) {
+        const keyFix = property as keyof DataPoints;
+        const label = dataList[keyFix]?.label!;
+        const info = dataList[keyFix]?.info!;
+        const value = productProperties[propIndex].values[0];
 
-      // Value is in the <td> that follows the specification.
-      const val = grabDOM(`[data-specification="${attribute}"] + [data-specification]`) as HTMLElement;
-      if (!val) continue;
+        const tempObject: PointObject = {
+          label,
+          value,
+          info
+        }
 
-      const tempKey = dataKeys[index] as keyof DataPoints;
-
-      const tempObject: PointObject = {
-        attribute,
-        label: dataList[tempKey]?.label!,
-        info: dataList[tempKey]?.info,
-        value: val.innerText
+        tempValidSpecs.push(tempObject);
       }
-
-      tempValidSpecs[tempKey] = tempObject;
     }
 
-    // Only setValidSpecs() if we have found product attributes.
-    if (Object.keys(tempValidSpecs).length) {
+    if (!!tempValidSpecs.length) {
       setValidSpecs(tempValidSpecs);
-      setShowProductDataCard(true);
-      // Product Data Card.
-      activateSection(0);
+      activateSection(0); // Details.
+      console.info(tempValidSpecs);
     } else {
-      // Product Details.
-      activateSection(1);
+      activateSection(1); // Product Description.
     }
   }
 
@@ -195,7 +168,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     <section aria-label="Product Information" className={styles.container}>
 
       {sectionProps.map((section: SectionPropsObject, index: number) => (
-        <section key={section.title} ref={(element: HTMLDivElement) => setSectionRef(element, index)} aria-labelledby={`${removeSpaces(section.title)}-title`} data-pdp-section={index} data-active={activeSection === index} data-applicable={index === 0 ? showDataCard ? "true" : "false" : "true"} className={styles.dataSection}>
+        <section key={section.title} ref={(element: HTMLDivElement) => setSectionRef(element, index)} aria-labelledby={`${removeSpaces(section.title)}-title`} data-pdp-section={index} data-active={activeSection === index} data-applicable={index === 0 ? !!validSpecs.length ? "true" : "false" : "true"} className={styles.dataSection}>
           <button aria-controls={`window-${index}`} aria-expanded={activeSection === index} onClick={() => sectionClick(index)} className={styles.titleButton}>
             <h2 id={`${removeSpaces(section.title)}-title`} className={styles.buttonText}>{section.title}</h2>
             <img src="/arquivos/sm-caret.gif" width={24} height={14} className={styles.caret} />
@@ -224,4 +197,3 @@ PDPAccordion.schema = {
 };
 
 export default PDPAccordion;
-
