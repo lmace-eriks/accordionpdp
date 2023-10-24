@@ -27,7 +27,21 @@ import { categories } from "./typesdata";
 // Components
 import ProductDataCard from "./ProductDataCard";
 
-export const removeSpaces = (value: string) => value.split(" ").join("-").toLowerCase().replace("'", "");
+export const removeSpaces = (value: string) => {
+  console.info(value);
+  const lowerCased = value.toLowerCase();
+  const allWords = lowerCased.split(" ");
+
+  for (let index = 0; index < allWords.length; index++) {
+    const word = allWords[index];
+    if (word === "|") allWords.splice(index, 1);
+  }
+
+  const combineWithHypens = allWords.join("-");
+
+  const removedApostrophes = combineWithHypens.split("'").join("");
+  return removedApostrophes;
+}
 
 const waitForDOM = (callbackFunction: any, ms: number = 1) => setTimeout(() => callbackFunction(), ms);
 
@@ -42,6 +56,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
 
   // State
   const [validSpecs, setValidSpecs] = useState<Array<PointObject>>([]);
+  const [category, setCategory] = useState<string>("");
   const [activeSection, setActiveSection] = useState(-1);
   const [activeHeight, setActiveHeight] = useState(0);
   const [loadedSections, setLoadedSections] = useState<Array<boolean>>(sectionProps.map(section => !section.lazyLoaded));
@@ -80,6 +95,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     for (const key in categories) {
       // Only searchForSpecs() if productCategory is in {categories}.
       if (productCategory === key) {
+        setCategory(productCategory);
         dataPointsControl.current = categories[productCategory];
         findSpecs();
         // checkReadyDOM();
@@ -176,7 +192,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
           {/* <div style={{ height: `${activeSection === index ? activeHeight : 0}px` }} className={styles.window}> */}
           <div id={`window-${index}`} className={styles.window}>
             <div ref={(element: HTMLDivElement) => setWrapperRef(element, index)} className={styles.wrapper}>
-              {index === 0 ? <ProductDataCard validSpecs={validSpecs} /> :
+              {index === 0 ? <ProductDataCard validSpecs={validSpecs} category={category} /> :
                 !loadedSections[index] ? <div>Loading Data...</div> : children[index - 1]}
             </div>
           </div>

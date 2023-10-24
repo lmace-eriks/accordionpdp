@@ -1,11 +1,11 @@
-import React, { useEffect, useRef, useState, useMemo, memo, ReactChildren } from "react";
-import { Link, canUseDOM } from "vtex.render-runtime";
+import React, { useRef, useState } from "react";
+// import { Link, canUseDOM } from "vtex.render-runtime";
 
 // Styles
 import styles from "./styles.css";
 
 // Types
-import { ProductDataCardProps, DataPoints, PointObject, MoreInfoObject } from "./typesdata";
+import { PointObject, MoreInfoObject } from "./typesdata";
 import { removeSpaces } from "./AccordionPDP";
 
 const addSpaces = (value: string) => value.split("-").join(" - ");
@@ -21,11 +21,12 @@ const flexRating = (value: string) => {
   }
 }
 
-const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => {
+const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObject>, category: string }) => {
   const modal = useRef<HTMLDialogElement>(null);
   const [moreInfo, setMoreInfo] = useState<MoreInfoObject>({});
 
   const openModalClick = (index: number) => {
+    console.info(category);
     const title = validSpecs[index]?.label;
     const text = validSpecs[index]?.info?.text;
     const image = validSpecs[index]?.info?.image;
@@ -41,12 +42,13 @@ const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => 
   // Value Snowboard Element?
   const ValueElement = ({ index, label }: { index: number, label: string }) => (
     <div className={styles.value}>
-      {label === "All Style" && // Best Use ?
+      {label === "All Style" && // Best Use
         <div className={styles.valueText}>
           <div className={styles.valueText}>
             {validSpecs[index]?.value}
           </div>
-          <img src={`/arquivos/pdc-sb-${removeSpaces(validSpecs[index].value!)}.png`} alt="" className={styles.valueImage} width={505} height={80} />
+          {category === "skis" && <img src={`/arquivos/pdc-v2-allstyle-ski-${removeSpaces(validSpecs[index].value!)}.png`} alt="" className={styles.valueImage} width={420} height={80} />}
+          {category === "snowboards" && <img src={`/arquivos/pdc-v2-allstyle-snowboard-${removeSpaces(validSpecs[index].value!)}.png`} alt="" className={styles.valueImage} width={505} height={80} />}
         </div>
       }
       {label === "Flex" &&
@@ -62,7 +64,7 @@ const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => 
           <div className={styles.valueText}>
             {validSpecs[index]?.value}
           </div>
-          <img src={`/arquivos/pdc-sb-profile-${validSpecs[index].value}.png`} alt="" className={styles.valueImage} width={400} height={80} />
+          <img src={`/arquivos/pdc-profile-${removeSpaces(validSpecs[index].value!)}.png`} alt="" className={styles.valueImage} width={400} height={80} />
         </div>
       }
       {label === "Rider Level" &&
@@ -70,7 +72,7 @@ const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => 
           <div className={styles.valueText}>
             {addSpaces(validSpecs[index].value!)}
           </div>
-          <img src={`/arquivos/pdc-${(validSpecs[index].value!).toLowerCase()}.png`} alt="" className={styles.valueImage} width={450} height={80} />
+          <img src={`/arquivos/pdc-${removeSpaces((validSpecs[index].value!))}.png`} alt="" className={styles.valueImage} width={450} height={80} />
         </div>
       }
       {/* String Only Outputs */
@@ -94,6 +96,7 @@ const ProductDataCard = ({ validSpecs }: { validSpecs: Array<PointObject> }) => 
   return (
     <div className={styles.pdcContainer}>
       {Object.keys(validSpecs).map((spec: string, index: number) => (
+        // This should be a table - LM
         <div key={`${spec}-${index}`} className={styles.detailsRow}>
           <div className={styles.spec}>{validSpecs[index].label}:</div>
           <ValueElement index={index} label={validSpecs[index].label} />
