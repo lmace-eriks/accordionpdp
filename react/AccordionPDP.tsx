@@ -15,7 +15,8 @@ interface PDPAccordionProps {
 
 interface SectionPropsObject {
   title: string
-  lazyLoaded: boolean
+  lazyLoaded: boolean,
+  sectionID?: string
 }
 
 // Types
@@ -26,9 +27,9 @@ import { categories } from "./typesdata";
 
 // Components
 import ProductDataCard from "./ProductDataCard";
+import FeaturesSection from "./FeaturesSection";
 
 export const removeSpaces = (value: string) => {
-  console.info(value);
   const lowerCased = value.toLowerCase();
   const allWords = lowerCased.split(" ");
 
@@ -44,22 +45,25 @@ export const removeSpaces = (value: string) => {
 }
 
 const waitForDOM = (callbackFunction: any, ms: number = 1) => setTimeout(() => callbackFunction(), ms);
+const dataCardPositionInChildList = 0;
+const featuresPositionInChildList = 2;
 
 const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children, sectionProps }) => {
   const productContextValue = useProduct();
 
   // Refs
-  const productInfo = useRef<any>();
   const sections = useRef<Array<HTMLDivElement>>([]);
   const wrappers = useRef<Array<HTMLDivElement>>([]);
   const dataPointsControl = useRef<DataPoints>({});
 
   // State
   const [validSpecs, setValidSpecs] = useState<Array<PointObject>>([]);
-  const [category, setCategory] = useState<string>("");
+  const [category, setCategory] = useState("");
   const [activeSection, setActiveSection] = useState(-1);
-  const [activeHeight, setActiveHeight] = useState(0);
+  const [featuresHTML, setFeaturesHTML] = useState("");
+  const [applicableSections, setApplicableSections] = useState<Array<boolean>>(sectionProps.map(() => true));
   const [loadedSections, setLoadedSections] = useState<Array<boolean>>(sectionProps.map(section => !section.lazyLoaded));
+  // const [activeHeight, setActiveHeight] = useState(0);
 
   // Run on load
   useEffect(() => determineCategory(), []);
@@ -70,46 +74,96 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     return () => window.removeEventListener("message", handleMessage);
   });
 
-  // Run on navigate
   const handleMessage = (e: MessageEvent) => {
+    // Run on navigate
     const eventName = e.data.eventName;
     if (eventName === "vtex:productView") determineCategory();
   }
 
-  const determineCategory = () => {
-    // Reset data.
+  const resetData = () => {
     setValidSpecs([]);
+    setCategory("");
+    setFeaturesHTML("");
     dataPointsControl.current = {};
+    setActiveSection(-1);
+    const tempApplicableSections = sectionProps.map(() => true);
+    setApplicableSections(tempApplicableSections);
+  }
 
-    productInfo.current = productContextValue.product;
-    if (!productInfo.current) return;
+  const determineCategory = () => {
+    resetData();
 
-    const categoryTree: Array<any> = productInfo.current.categoryTree;
-    if (!categoryTree) return;
+    const productContext = productContextValue;
+    const rightNow = Date.now();
+    console.info({ productContext, rightNow });
 
-    // Identifying category is position [1] in categoryTree.
-    const productCategory = categoryTree[1]?.name?.toLowerCase();
+    const productInfo = productContextValue.product;
+    if (!productInfo) {
+      console.error("Product Info not found.");
+      return;
+    }
+
+    // There exists a property inside VTEX's useProduct() called 
+    // categoryTree. This property is sometimes undefined on the first
+    // render, so we break this similar array down in a slightly more
+    // cumbersome way to get to our category string - LM
+    const breadcrumbs = productInfo.categories[0].split("/");
+    const productCategory = breadcrumbs.filter((word: string) => word !== "")[1].toLowerCase();
 
     let validCategory = false;
 
-    for (const key in categories) {
-      // Only searchForSpecs() if productCategory is in {categories}.
-      if (productCategory === key) {
+    for (const categoryKey in categories) {
+      // Only findSpecs() if productCategory is in {categories}.
+      if (productCategory === categoryKey) {
         setCategory(productCategory);
         dataPointsControl.current = categories[productCategory];
         findSpecs();
-        // checkReadyDOM();
         validCategory = true;
         break;
       }
     }
 
-    if (!validCategory) activateSection(1); // Product Description.
+    if (!validCategory) inactivateDetails();
+    findFeatures();
+  }
+
+  const findFeatures = () => {
+    const product = productContextValue.product;
+    const productProperties = product.properties;
+    if (!productProperties) {
+      console.error("Product Properties not found in findFeatures()");
+      return;
+    }
+
+    let featuresFound = false;
+
+    for (let index = 0; index < productProperties.length; index++) {
+      // Working from back of list since "Features" is towards the end. - LM
+      const property = productProperties[(productProperties.length - 1) - index];
+
+      if (property.name === "Features") {
+        const value = property.values[0];
+        featuresFound = true;
+        setFeaturesHTML(value);
+
+        updateApplicableSections(featuresPositionInChildList, true);
+
+        break;
+      }
+    }
+
+    if (!featuresFound) {
+      updateApplicableSections(featuresPositionInChildList, false);
+    }
   }
 
   const findSpecs = () => {
     const dataList = dataPointsControl.current;
-    const productProperties = productInfo.current.properties;
+    const productProperties = productContextValue.product?.properties;
+    if (!productProperties) {
+      console.error("Product Properties not found in findSpecs()");
+      return;
+    }
     const tempValidSpecs: Array<PointObject> = [];
 
     for (let propIndex = 0; propIndex < productProperties.length; propIndex++) {
@@ -134,19 +188,31 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     }
 
     if (!!tempValidSpecs.length) {
+      updateApplicableSections(dataCardPositionInChildList, true);
+
       setValidSpecs(tempValidSpecs);
-      activateSection(0); // Details.
-      console.info(tempValidSpecs);
+      activateSection(dataCardPositionInChildList);
     } else {
-      activateSection(1); // Product Description.
+      inactivateDetails();
     }
   }
 
+  const updateApplicableSections = (section: number, activation: boolean) => {
+    const tempApplicableSections = applicableSections;
+    tempApplicableSections[section] = activation;
+    setApplicableSections(tempApplicableSections);
+  }
+
+  const inactivateDetails = () => {
+    updateApplicableSections(dataCardPositionInChildList, false);
+    activateSection(1); // Product Description.
+  }
+
   const activateSection = (section: number, scrollTo: boolean = false) => {
-    if (!!wrappers.current[section]) {
-      const dataHeight = Number(wrappers.current[section].offsetHeight);
-      setActiveHeight(dataHeight);
-    }
+    // if (!!wrappers.current[section]) {
+    //   const dataHeight = Number(wrappers.current[section].offsetHeight);
+    //   setActiveHeight(dataHeight);
+    // }
     setActiveSection(section);
     if (scrollTo) scrollToActiveSection(section);
   }
@@ -184,16 +250,18 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     <section aria-label="Product Information" className={styles.container}>
 
       {sectionProps.map((section: SectionPropsObject, index: number) => (
-        <section key={section.title} ref={(element: HTMLDivElement) => setSectionRef(element, index)} aria-labelledby={`${removeSpaces(section.title)}-title`} data-pdp-section={index} data-active={activeSection === index} data-applicable={index === 0 ? !!validSpecs.length ? "true" : "false" : "true"} className={styles.dataSection}>
+        <section key={section.title} id={section.sectionID} ref={(element: HTMLDivElement) => setSectionRef(element, index)} tabIndex={-1} aria-labelledby={`${removeSpaces(section.title)}-title`} data-pdp-section={index} data-active={activeSection === index} data-applicable={applicableSections[index]} className={styles.dataSection}>
           <button aria-controls={`window-${index}`} aria-expanded={activeSection === index} onClick={() => sectionClick(index)} className={styles.titleButton}>
             <h2 id={`${removeSpaces(section.title)}-title`} className={styles.buttonText}>{section.title}</h2>
             <img src="/arquivos/sm-caret.gif" width={24} height={14} className={styles.caret} />
           </button>
-          {/* <div style={{ height: `${activeSection === index ? activeHeight : 0}px` }} className={styles.window}> */}
-          <div id={`window-${index}`} className={styles.window}>
+          <div id={`window-${index}`} tabIndex={-1} className={styles.window}>
             <div ref={(element: HTMLDivElement) => setWrapperRef(element, index)} className={styles.wrapper}>
-              {index === 0 ? <ProductDataCard validSpecs={validSpecs} category={category} /> :
-                !loadedSections[index] ? <div>Loading Data...</div> : children[index - 1]}
+              {
+                index === dataCardPositionInChildList ? <ProductDataCard validSpecs={validSpecs} category={category} /> :
+                  index === featuresPositionInChildList ? <FeaturesSection featuresHTML={featuresHTML} /> :
+                    !loadedSections[index] ? <div>Loading Data...</div> : children[index - 1]
+              }
             </div>
           </div>
         </section>
