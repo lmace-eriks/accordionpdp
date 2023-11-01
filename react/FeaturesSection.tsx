@@ -4,7 +4,6 @@ import { canUseDOM } from "vtex.render-runtime";
 // Styles
 import styles from "./styles.css";
 
-
 const FeaturesSection = ({ featuresHTML }: { featuresHTML: string }) => {
   const [productFeatures, setProductFeatures] = useState("");
 
@@ -33,9 +32,7 @@ const FeaturesSection = ({ featuresHTML }: { featuresHTML: string }) => {
     setProductFeatures(fakeBody.innerHTML);
   }
 
-  return (
-    <div className={styles.featuresContainer} dangerouslySetInnerHTML={{ __html: productFeatures }} />
-  );
+  return <div className={styles.featuresContainer} dangerouslySetInnerHTML={{ __html: productFeatures }} />;
 };
 
 FeaturesSection.schema = {
@@ -48,4 +45,3 @@ FeaturesSection.schema = {
 };
 
 export default FeaturesSection;
-

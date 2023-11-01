@@ -1,8 +1,3 @@
-export interface ProductDataCardProps {
-  validSpecs: DataPoints;
-  blockClass?: string;
-}
-
 export interface DataPoints {
   // Snowboard
   ProductData_AllStyle_SB?: PointObject;
@@ -47,78 +42,67 @@ export const snowboardDataPoints: DataPoints = {
   ProductData_AllStyle_SB: {
     label: "All Style",
     info: {
-      text: "All Style is so cool ya gotta try it.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "All Style represents different riding styles.",
     },
   },
   ProductData_WinBaseTech_SB: {
     label: "Base Tech",
     info: {
-      text: "Base Tech is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The technology that goes into the base material.",
     },
   },
   ProductData_WinBaseType_SB: {
     label: "Base Type",
     info: {
-      text: "Base Type is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The way the base material is processed determines the type of base.",
     },
   },
   ProductData_WinCore_SB: {
     label: "Core",
     info: {
-      text: "Core is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The materials used inside the snowboard make up it's core.",
     },
   },
   ProductData_WinFlex_SB: {
     label: "Flex",
     info: {
-      text: "Flex is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "How easily the snowboard flexes determines how stiff or soft the snowboard is.",
     },
   },
   ProductData_Gender_SB: {
     label: "Gender",
     info: {
-      text: "Gender is a social construct.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "Snowboard technology is adapted to the type of rider.",
     },
   },
   ProductData_WinMounting_SB: {
     label: "Mounting",
     info: {
-      text: "Mounting is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The insert formation on the snowboard determines the way the binding is mounted.",
     },
   },
   ProductData_WinProfile_SB: {
     label: "Profile",
     info: {
-      text: "Profile is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The profile represent the lateral shape of the snowboard.",
     },
   },
   ProductData_WinRiderLvl_SB: {
     label: "Rider Level",
     info: {
-      text: "Rider Level is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "Rider level is determined by the skill level of the rider.",
     },
   },
   ProductData_WinStance_SB: {
     label: "Stance",
     info: {
-      text: "Stance is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The stance on a snowboard refers to how the bindings will be mounted.",
     },
   },
   ProductData_WinShape_SB: {
     label: "Shape",
     info: {
-      text: "Shape is the ipsum lorum dolor sit amet.",
-      image: "/arquivos/ids/365382-500-auto?v=638296259506800000&width=500&height=auto&aspect=true",
+      text: "The shape of the nose and tail.",
     },
   },
 };
@@ -127,67 +111,67 @@ export const skiDataPoints: DataPoints = {
   ProductData_AllStyle_SK: {
     label: "All Style",
     info: {
-      text: "This is the info for a ski All Style",
+      text: "All Style represents different riding styles.",
     },
   },
   ProductData_WinBindings_SK: {
     label: "Bindings",
     info: {
-      text: "This is the info for a ski All Style",
+      text: "The type of binding and how it's mounted on the ski.",
     },
   },
   ProductData_WinCore_SK: {
     label: "Core",
     info: {
-      text: "This is the info for a ski Core",
+      text: "The materials used inside the ski make up it's core.",
     },
   },
   ProductData_WinFlex_SK: {
     label: "Flex",
     info: {
-      text: "This is the info for a ski Core",
+      text: "How easily the ski flexes determines how stiff or soft the ski is.",
     },
   },
   ProductData_Gender_SK: {
     label: "Gender",
     info: {
-      text: "This is the info for a ski Core",
+      text: "Ski technology is adapted to the type of rider.",
     },
   },
   ProductData_WinGeo_SK: {
     label: "Geometry",
     info: {
-      text: "This is the info for a ski Core",
+      text: "The geography of the ski is based on which type of terrain it's best suited for.",
     },
   },
   ProductData_WinProfile_SK: {
     label: "Profile",
     info: {
-      text: "This is the info for a ski Core",
+      text: "The profile represent the lateral shape of the ski.",
     },
   },
   ProductData_WinRiderLvl_SK: {
     label: "Rider Level",
     info: {
-      text: "This is the info for a ski Core",
+      text: "Rider level is determined by the skill level of the rider.",
     },
   },
   ProductData_WinTailType_SK: {
     label: "Tail Type",
     info: {
-      text: "This is the info for a ski Core",
+      text: "Tail type refers to the overall shape and rise of the tail of the ski.",
     },
   },
   ProductData_WinTurnRadius_SK: {
     label: "Turn Radius",
     info: {
-      text: "This is the info for a ski Core",
+      text: "The turn radius calculates how wide or tight the ski can turn.",
     },
   },
   ProductData_WinWaistWidth_SK: {
     label: "Waist Width",
     info: {
-      text: "This is the info for a ski Core",
+      text: "Waist width refers to how wide the ski is under the bindings.",
     },
   },
 };
