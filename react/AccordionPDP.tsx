@@ -20,7 +20,7 @@ interface SectionPropsObject {
 }
 
 // Types
-import { DataPoints, PointObject } from "./typesdata";
+import { DataPoints, PointObject, VTEXProperty } from "./typesdata";
 
 // Data
 import { categories } from "./typesdata";
@@ -28,6 +28,9 @@ import { categories } from "./typesdata";
 // Components
 import ProductDataCard from "./ProductDataCard";
 import FeaturesSection from "./FeaturesSection";
+import SizeChart from "./SizeChart";
+import EriksExtras from "./EriksExtras";
+import ProductDescription from "./ProductDescription";
 
 export const removeSpaces = (value: string) => {
   const lowerCased = value.toLowerCase();
@@ -39,31 +42,36 @@ export const removeSpaces = (value: string) => {
   }
 
   const combineWithHypens = allWords.join("-");
-
   const removedApostrophes = combineWithHypens.split("'").join("");
+
   return removedApostrophes;
 }
 
 const waitForDOM = (callbackFunction: any, ms: number = 1) => setTimeout(() => callbackFunction(), ms);
 const dataCardPositionInChildList = 0;
-const featuresPositionInChildList = 2;
+const productDescriptionPositionInChildList = 1;
+const sizeChartPositionInChildList = 2;
+const featuresPositionInChildList = 3;
+const extrasPositionInChildList = 4;
 
 const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children, sectionProps }) => {
   const productContextValue = useProduct();
 
   // Refs
   const sections = useRef<Array<HTMLDivElement>>([]);
-  const wrappers = useRef<Array<HTMLDivElement>>([]);
-  const dataPointsControl = useRef<DataPoints>({});
+  const running = useRef(false);
+  // const dataPointsControl = useRef<DataPoints>({});
 
   // State
   const [validSpecs, setValidSpecs] = useState<Array<PointObject>>([]);
   const [category, setCategory] = useState("");
   const [activeSection, setActiveSection] = useState(-1);
+  const [productDescriptionHTML, setProductDescriptionHTML] = useState("");
   const [featuresHTML, setFeaturesHTML] = useState("");
+  const [sizeChartHTML, setSizeChartHTML] = useState("");
+  const [extrasHTML, setExtrasHTML] = useState("");
   const [applicableSections, setApplicableSections] = useState<Array<boolean>>(sectionProps.map(() => true));
   const [loadedSections, setLoadedSections] = useState<Array<boolean>>(sectionProps.map(section => !section.lazyLoaded));
-  // const [activeHeight, setActiveHeight] = useState(0);
 
   // Run on load
   useEffect(() => determineCategory(), []);
@@ -80,22 +88,22 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     if (eventName === "vtex:productView") determineCategory();
   }
 
+  // Important for user navigation between PDPs.
   const resetData = () => {
     setValidSpecs([]);
     setCategory("");
     setFeaturesHTML("");
-    dataPointsControl.current = {};
     setActiveSection(-1);
     const tempApplicableSections = sectionProps.map(() => true);
     setApplicableSections(tempApplicableSections);
   }
 
   const determineCategory = () => {
-    resetData();
+    // Prevents simultanious logic.
+    if (running.current) return;
+    running.current = true;
 
-    const productContext = productContextValue;
-    const rightNow = Date.now();
-    console.info({ productContext, rightNow });
+    resetData();
 
     const productInfo = productContextValue.product;
     if (!productInfo) {
@@ -108,7 +116,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     // render, so we break this similar array down in a slightly more
     // cumbersome way to get to our category string - LM
     const breadcrumbs = productInfo.categories[0].split("/");
-    const productCategory = breadcrumbs.filter((word: string) => word !== "")[1].toLowerCase();
+    const productCategory: string = breadcrumbs.filter((word: string) => word !== "")[1].toLowerCase();
 
     let validCategory = false;
 
@@ -116,81 +124,100 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
       // Only findSpecs() if productCategory is in {categories}.
       if (productCategory === categoryKey) {
         setCategory(productCategory);
-        dataPointsControl.current = categories[productCategory];
-        findSpecs();
+        findSpecs(categories[productCategory]);
         validCategory = true;
         break;
       }
     }
 
     if (!validCategory) inactivateDetails();
-    findFeatures();
+
+    buildProductDescription(productInfo);
+    findProperties(productInfo);
   }
 
-  const findFeatures = () => {
-    const product = productContextValue.product;
+  const buildProductDescription = (product: any) => {
+    setProductDescriptionHTML(product.description);
+  }
+
+  const findProperties = (product: any) => {
     const productProperties = product.properties;
+
     if (!productProperties) {
       console.error("Product Properties not found in findFeatures()");
       return;
     }
 
-    let featuresFound = false;
+    const featuresIndex = productProperties.findIndex((item: any) => item.name === "Features");
+    const sizeChartIndex = productProperties.findIndex((item: any) => item.name === "Size Chart");
+    const extrasIndex = productProperties.findIndex((item: any) => item.name === "Extra");
 
-    for (let index = 0; index < productProperties.length; index++) {
-      // Working from back of list since "Features" is towards the end. - LM
-      const property = productProperties[(productProperties.length - 1) - index];
-
-      if (property.name === "Features") {
-        const value = property.values[0];
-        featuresFound = true;
-        setFeaturesHTML(value);
-
-        updateApplicableSections(featuresPositionInChildList, true);
-
-        break;
-      }
+    if (sizeChartIndex > -1) {
+      const sizeChartValue: string = productProperties[sizeChartIndex].values[0];
+      buildSizeChart(sizeChartValue);
     }
 
-    if (!featuresFound) {
-      updateApplicableSections(featuresPositionInChildList, false);
+    if (featuresIndex > -1) {
+      setFeaturesHTML(productProperties[featuresIndex].values[0]);
     }
+
+    if (extrasIndex > -1) {
+      setExtrasHTML(productProperties[extrasIndex].values[0]);
+    }
+
+    // Turning off Size Chart within Accodion for now. 11/10/2023 - LM
+    updateApplicableSections(sizeChartPositionInChildList, false);
+    updateApplicableSections(featuresPositionInChildList, (featuresIndex > -1) ? true : false);
+
+    running.current = false;
   }
 
-  const findSpecs = () => {
-    const dataList = dataPointsControl.current;
+  const buildSizeChart = (sizeChartValue: string) => {
+    // This may not be needed in the future. Currently the "blank"
+    // Size Chart is some HTML, so we need to sanitize in this
+    // parent function for the time being. - LM
+    if (!canUseDOM) return;
+    const fakeBody = document.createElement("body");
+    fakeBody.innerHTML = sizeChartValue;
+
+    // Turning off Size Chart within Accodion for now. 11/10/2023 - LM
+    // const chartImage: HTMLImageElement = fakeBody.querySelector(".vtex-size-chart-image") as HTMLImageElement;
+    const chartImage = null;
+
+    // if (chartImage) setSizeChartHTML(chartImage.src);
+
+    updateApplicableSections(sizeChartPositionInChildList, !!chartImage);
+  }
+
+  const findSpecs = (dataList: DataPoints) => {
     const productProperties = productContextValue.product?.properties;
+
     if (!productProperties) {
       console.error("Product Properties not found in findSpecs()");
       return;
     }
-    const tempValidSpecs: Array<PointObject> = [];
 
-    for (let propIndex = 0; propIndex < productProperties.length; propIndex++) {
-      const property = productProperties[propIndex].name;
-      const isDataCard = property.includes("ProductData_");
+    const specsInDataCard: Array<VTEXProperty> = productProperties.filter((spec: VTEXProperty) =>
+      spec.name.includes("ProductData_"));
 
-      // If property is a valid Product Data Card property, build state.
-      if (isDataCard) {
-        const keyFix = property as keyof DataPoints;
-        const label = dataList[keyFix]?.label!;
-        const info = dataList[keyFix]?.info!;
-        const value = productProperties[propIndex].values[0];
+    const validSpecList: Array<PointObject> = specsInDataCard.map((item) => {
+      const keyFix = item.name as keyof DataPoints;
 
-        const tempObject: PointObject = {
-          label,
-          value,
-          info
-        }
-
-        tempValidSpecs.push(tempObject);
+      return {
+        label: dataList[keyFix]?.label!,
+        sortPriority: dataList[keyFix]?.sortPriority!,
+        value: item.values[0],
+        info: dataList[keyFix]?.info!
       }
-    }
+    });
 
-    if (!!tempValidSpecs.length) {
+    if (!!validSpecList.length) {
+      const comparePriority: any = (a: PointObject, b: PointObject) => a.sortPriority > b.sortPriority;
+      validSpecList.sort(comparePriority);
+
       updateApplicableSections(dataCardPositionInChildList, true);
 
-      setValidSpecs(tempValidSpecs);
+      setValidSpecs(validSpecList);
       activateSection(dataCardPositionInChildList);
     } else {
       inactivateDetails();
@@ -205,14 +232,10 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
 
   const inactivateDetails = () => {
     updateApplicableSections(dataCardPositionInChildList, false);
-    activateSection(1); // Product Description.
+    activateSection(productDescriptionPositionInChildList);
   }
 
   const activateSection = (section: number, scrollTo: boolean = false) => {
-    // if (!!wrappers.current[section]) {
-    //   const dataHeight = Number(wrappers.current[section].offsetHeight);
-    //   setActiveHeight(dataHeight);
-    // }
     setActiveSection(section);
     if (scrollTo) scrollToActiveSection(section);
   }
@@ -243,7 +266,6 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     activateSection(index, true);
   }
 
-  const setWrapperRef = (element: HTMLDivElement, wrapper: number) => wrappers.current[wrapper] = element;
   const setSectionRef = (element: HTMLDivElement, wrapper: number) => sections.current[wrapper] = element;
 
   return (
@@ -256,11 +278,14 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
             <img src="/arquivos/sm-caret.gif" width={24} height={14} className={styles.caret} />
           </button>
           <div id={`window-${index}`} tabIndex={-1} className={styles.window}>
-            <div ref={(element: HTMLDivElement) => setWrapperRef(element, index)} className={styles.wrapper}>
+            <div className={styles.wrapper}>
               {
                 index === dataCardPositionInChildList ? <ProductDataCard validSpecs={validSpecs} category={category} /> :
-                  index === featuresPositionInChildList ? <FeaturesSection featuresHTML={featuresHTML} /> :
-                    !loadedSections[index] ? <div>Loading Data...</div> : children[index - 1]
+                  index === productDescriptionPositionInChildList ? <ProductDescription productDescriptionHTML={productDescriptionHTML} /> :
+                    index === featuresPositionInChildList ? <FeaturesSection featuresHTML={featuresHTML} /> :
+                      index === extrasPositionInChildList ? <EriksExtras extrasHTML={extrasHTML} /> :
+                        index === sizeChartPositionInChildList ? <SizeChart sizeChartHTML={sizeChartHTML} /> :
+                          !loadedSections[index] ? <div>Loading Data...</div> : children[index]
               }
             </div>
           </div>

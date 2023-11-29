@@ -12,12 +12,12 @@ const addSpaces = (value: string) => value.split("-").join(" - ");
 
 const flexRating = (value: string) => {
   const rating = Number(value);
-  if (rating < 3) {
+  if (rating <= 3) {
     return "Soft";
   } else if (rating >= 4 && rating <= 7) {
     return "Medium";
   } else { // 8 or greater.
-    return "Firm";
+    return "Stiff";
   }
 }
 
@@ -26,7 +26,6 @@ const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObje
   const [moreInfo, setMoreInfo] = useState<MoreInfoObject>({});
 
   const openModalClick = (index: number) => {
-    console.info(category);
     const title = validSpecs[index]?.label;
     const text = validSpecs[index]?.info?.text;
     const image = validSpecs[index]?.info?.image;
@@ -39,7 +38,6 @@ const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObje
     modal.current?.close();
   }
 
-  // Value Snowboard Element?
   const ValueElement = ({ index, label }: { index: number, label: string }) => (
     <div className={styles.value}>
       {label === "All Style" && // Best Use          
@@ -100,15 +98,18 @@ const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObje
         <div key={`detail-${index}`} className={styles.detailsRow}>
           <div className={styles.spec}>{spec.label}: <span className={styles.valueTextMobile}>{spec.value}</span></div>
           <ValueElement index={index} label={spec.label} />
-          <button onClick={() => openModalClick(index)} data-spec={spec.label} aria-label={`Learn more about ${spec.label}`} className={styles.learnMore}>
-            Learn More <span className={styles.questionMark}>?</span>
-          </button>
+
+          {spec.info &&
+            <button onClick={() => openModalClick(index)} data-spec={spec.label} aria-label={`Learn more about ${spec.label}`} className={styles.learnMore}>Learn More <span className={styles.questionMark}>?</span>
+            </button>
+          }
+
         </div>
       ))}
 
       <dialog ref={modal} className={styles.dialog}>
         {moreInfo.title && <div className={styles.dialogTitle}>{moreInfo.title}</div>}
-        {moreInfo.text && <div className={styles.dialogText}>{moreInfo.text}</div>}
+        {moreInfo.text && <div className={styles.dialogText} dangerouslySetInnerHTML={{ __html: moreInfo.text }} />}
         {moreInfo.image && <img src={moreInfo.image} className={styles.dialogImage} />}
         <button onClick={closeModalClick} className={styles.dialogButton}>Close</button>
       </dialog>
