@@ -1,7 +1,7 @@
 {
   "vendor": "eriksbikeshop",
   "name": "accordionpdp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "title": "AccordionPDP",
   "description": "AccordionPDP component",
   "defaultLocale": "pt-BR",

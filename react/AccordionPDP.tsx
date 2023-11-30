@@ -114,9 +114,10 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
     // There exists a property inside VTEX's useProduct() called 
     // categoryTree. This property is sometimes undefined on the first
     // render, so we break this similar array down in a slightly more
-    // cumbersome way to get to our category string - LM
+    // cumbersome way to get to our category string. Gift Cards have
+    // no parent category so we default to "null" in that case - LM
     const breadcrumbs = productInfo.categories[0].split("/");
-    const productCategory: string = breadcrumbs.filter((word: string) => word !== "")[1].toLowerCase();
+    const productCategory: string = breadcrumbs.filter((word: string) => word !== "")[1]?.toLowerCase() || "null";
 
     let validCategory = false;
 
