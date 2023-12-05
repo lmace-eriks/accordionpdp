@@ -60,7 +60,6 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
   // Refs
   const sections = useRef<Array<HTMLDivElement>>([]);
   const running = useRef(false);
-  // const dataPointsControl = useRef<DataPoints>({});
 
   // State
   const [validSpecs, setValidSpecs] = useState<Array<PointObject>>([]);
@@ -206,6 +205,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
 
       return {
         label: dataList[keyFix]?.label!,
+        sublabel: dataList[keyFix]?.sublabel || "",
         sortPriority: dataList[keyFix]?.sortPriority!,
         value: item.values[0],
         info: dataList[keyFix]?.info!
@@ -217,7 +217,7 @@ const PDPAccordion: StorefrontFunctionComponent<PDPAccordionProps> = ({ children
       validSpecList.sort(comparePriority);
 
       updateApplicableSections(dataCardPositionInChildList, true);
-
+      console.info(validSpecList);
       setValidSpecs(validSpecList);
       activateSection(dataCardPositionInChildList);
     } else {

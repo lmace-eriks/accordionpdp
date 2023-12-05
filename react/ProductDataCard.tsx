@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-// import { Link, canUseDOM } from "vtex.render-runtime";
 
 // Styles
 import styles from "./styles.css";
@@ -79,7 +78,7 @@ const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObje
           label === "Bindings" ||
           label === "Core" ||
           label === "Gender" ||
-          label === "Geometry" ||
+          label === "Dimensions" ||
           label === "Mounting" ||
           label === "Stance" ||
           label === "Shape" ||
@@ -96,7 +95,13 @@ const ProductDataCard = ({ validSpecs, category }: { validSpecs: Array<PointObje
 
       {validSpecs.map((spec: PointObject, index: number) => (
         <div key={`detail-${index}`} className={styles.detailsRow}>
-          <div className={styles.spec}>{spec.label}: <span className={styles.valueTextMobile}>{spec.value}</span></div>
+          <div className={styles.mobileSpecRule}>
+            <div className={styles.specContainer}>
+              <div className={styles.spec}>{spec.label}:</div>
+              <div className={styles.sublabel}>{spec.sublabel}</div>
+            </div>
+            <div className={styles.valueTextMobile}>{spec.value}</div>
+          </div>
           <ValueElement index={index} label={spec.label} />
 
           {spec.info &&

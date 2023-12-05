@@ -28,6 +28,7 @@ export interface DataPoints {
 
 export interface PointObject {
   label: string;
+  sublabel?: string;
   sortPriority: number; // Sort order. Lower numbers are higher priority. Zero is a valid value.
   info?: MoreInfoObject;
   value?: string; // Loaded from VTEX server.
@@ -153,7 +154,8 @@ export const skiDataPoints: DataPoints = {
     sortPriority: 10,
   },
   ProductData_WinGeo_SK: {
-    label: "Geometry",
+    label: "Dimensions",
+    sublabel: "Tip / Waist / Tail",
     sortPriority: 10,
   },
   ProductData_WinProfile_SK: {
@@ -169,7 +171,7 @@ export const skiDataPoints: DataPoints = {
     sortPriority: 2,
     info: {
       text:
-        "<ul data-lm-list> <li data-lm-list-item><b>Beginner</b> - From a first-time rider to learning the foundations of carving and stopping.</li> <li data-lm-list-item><b>Intermmediate</b> - A rider that has mastered the basics wants to explore riding different terrain on the resort.</li> <li data-lm-list-item><b>Advanced/Expert</b> - An experienced rider that can ride difficult terrain in any conditions.</li> </ul>",
+        "<ul data-lm-list><li data-lm-list-item><b>Beginner</b> - From a first-time rider to learning the foundations of carving and stopping.</li> <li data-lm-list-item><b>Intermmediate</b> - A rider that has mastered the basics wants to explore riding different terrain on the resort.</li> <li data-lm-list-item><b>Advanced/Expert</b> - An experienced rider that can ride difficult terrain in any conditions.</li></ul>",
     },
   },
   ProductData_WinTailType_SK: {
