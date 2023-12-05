@@ -157,6 +157,10 @@ export const skiDataPoints: DataPoints = {
     label: "Dimensions",
     sublabel: "Tip / Waist / Tail",
     sortPriority: 10,
+    info: {
+      text:
+        "<ul data-lm-list><li data-lm-list-item><b>Tip</b> - The front portion of the ski. Impacts how the skis initiates turns and handles varied snow&nbsp;conditions.</li><li data-lm-list-item><b>Waist</b> - The narrowest part of the ski and located underfoot. Waist width greatly affects the ride quality and best informs terrain performance.</li><li data-lm-list-item><b>Tail</b> - The rear end of the ski. This dimension impacts how the ski completes and exits from&nbsp;turns.</li></ul>",
+    },
   },
   ProductData_WinProfile_SK: {
     label: "Profile",
